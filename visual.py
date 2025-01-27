@@ -9,29 +9,57 @@ from _main import evaluate
 
 Window.size = (800, 800)
 
+# Add whatever you want in here
+layouts = [['qpdmxzyou;', 'rnthfgsaei', 'wbkljvc,.?'], 
+           ['qwertyuiop', 'asdfghjkl;', 'zxcvbnm,.?'],
+           ['gvdfjqruo;', 'csthyxneai', 'wbmpkzl,.?'],
+           ['bldwz;fouj', 'nrtsgyhaei', 'qxmcvkp,.?']]
+
 class SquareWidget(Widget):
-    def __init__(self, layout,  **kwargs):  # Accept layout as a parameter
+    def __init__(self, layouts,  **kwargs):  # Accept layout as a parameter
         super().__init__(**kwargs)
         with self.canvas:
             # Draw background
             Color(0.15, 0.15, 0.28, 1)
             self.bg = Rectangle(size=(800, 800), pos=self.pos)
 
-        self.evaluations = {}
-        self.layout = layout
+        self.evaluations =[{} for _ in range(len(layouts))]
+        self.widgets = []
+        self.selected = 0
+        self.layouts = layouts
         self.create_grid()
+        self.create_keyboard()
+        
+        self.default_text = "Choose a corpus"
 
+        arrow1 = Button(
+            pos=(740, 520),
+            text=">",
+            background_color=(0.19, 0.19, 0.34, 1),
+            size_hint=(None, None),
+            size=(50, 100))
+        
+
+        arrow2 = Button(
+            pos=(10, 520),
+            text="<",
+            background_color=(0.19, 0.19, 0.34, 1),
+            size_hint=(None, None),
+            size=(50, 100))
+
+        arrow1.bind(on_release=lambda instance: self.switch(1))
+        self.add_widget(arrow1)
+
+        arrow2.bind(on_release=lambda instance: self.switch(-1))
+        self.add_widget(arrow2)
+        self.dropdown_button()
+
+    def dropdown_button(self):
         # Create the dropdown
         dropdown = DropDown()
 
-        main_button = Button(
-            text="Select an option",
-            size_hint=(None, None),
-            size=(200, 50),
-        )
-
         # Add items to the dropdown
-        options = ["English-1k", "English-200", "Discord", "Keymash", "My_Discord", "mt"]
+        options = ["Discord", "English-1k", "English-200", "Keymash", "Monkey-Type", "My_Discord"]
         for option in options:
             # Create a button for each option
             btn = Button(
@@ -46,7 +74,6 @@ class SquareWidget(Widget):
 
         # Create the main button to trigger the dropdown
         
-        self.default_text = "Choose a corpus"
         main_button = Button(
             pos=(530, 360),
             text=self.default_text,
@@ -56,14 +83,30 @@ class SquareWidget(Widget):
 
         # Bind the main button to open the dropdown
         main_button.bind(on_release=dropdown.open)
+        self.widgets.append(main_button)
         self.add_widget(main_button)
 
+    def switch(self, direction):
+        if direction == 1:
+            self.selected = self.selected + direction if self.selected != len(self.layouts) - 1 else 0
+        elif direction == -1:
+            self.selected = self.selected + direction if self.selected != 0 else len(self.layouts) - 1
+
+        # Update the keyboard
+        self.create_keyboard()
+        self.dropdown_button()
+
+        # Update the stats after arrow is used
+        if self.default_text != "Choose a corpus":
+            self.update_text(self.default_text)
+
     def update_text(self, corpus):
-        if corpus not in self.evaluations:
-            evaluation = evaluate([self.layout], corpus)
-            self.evaluations[corpus] = evaluation
+
+        if corpus not in self.evaluations[self.selected]:
+            evaluation = evaluate([self.layouts[self.selected]], corpus)
+            self.evaluations[self.selected][corpus] = evaluation
         else:
-            evaluation = self.evaluations[corpus]
+            evaluation = self.evaluations[self.selected][corpus]
 
         self.stats = evaluation[0]
         self.weights = evaluation[1]
@@ -79,8 +122,8 @@ class SquareWidget(Widget):
             f"Outrolls    : {self.cleanup('Outrolls')} | {self.cleanup('Trioutroll')}\n"
             f"Alt         : {self.cleanup('Alt')}\n"
             f"LSB         : {self.cleanup('LSB')}\n"
-            f"Score       : {round(100 - 10 * self.movement/self.corpus_count, 1)} / 100[/color]")
-        
+            f"Score       : {round(100 - 8 * self.movement/self.corpus_count, 1)} / 100[/color]")
+
         self.stats_label.text = self.text_chunk
 
     def colorize_string(self, string):
@@ -106,14 +149,44 @@ class SquareWidget(Widget):
         Updates the main button's text and closes the dropdown.
         """
         main_button.text = btn.text  # Updates the main button text
+        self.default_text = btn.text
         self.update_text(btn.text)
         dropdown.dismiss()  # Close the dropdown
 
-    def create_grid(self):
-        rows, cols = len(self.layout), max(len(row) for row in self.layout)
+    def create_keyboard(self):
+        rows, cols = 3, 10
         square_size = 50  # Size of each key
         spacing = 10  # Space between keys
+        for key in self.widgets:
+            self.remove_widget(key)
+            
+        with self.canvas:
+            # Keyboard Keys
+            for row in range(rows):
+                for col in range(cols):
+                    x = col * (square_size + spacing) + 95
+                    y = 600 - row * (square_size + spacing) 
+                    if col > 4: x += 20
 
+                    # Draw the key
+                    Color(*self.colorize_string(self.layouts[self.selected][row][col]))
+                    RoundedRectangle(
+                        pos=(x, y),
+                        size=(square_size, square_size),
+                        radius=[(13, 13) * 4])
+
+                    # Draw the letter
+                    key = (Label(
+                        text=f"{self.layouts[self.selected][row][col].upper()}",
+                        font_size=25,
+                        color=(0, 0, 0, 1),  # Black color
+                        size_hint=(None, None),
+                        size=(square_size, square_size),
+                        pos=(x, y)))
+                    self.widgets.append(key)
+                    self.add_widget(key)
+                    
+    def create_grid(self):
         # Create the UI
         with self.canvas:
             # Aesthetic Rectangles
@@ -133,29 +206,6 @@ class SquareWidget(Widget):
                 pos=(75, 25),
                 size=(430, 390),
                 radius=[(10, 10) * 4])
-
-            # Keyboard Keys
-            for row in range(rows):
-                for col in range(cols):
-                    x = col * (square_size + spacing) + 95
-                    y = 600 - row * (square_size + spacing) 
-                    if col > 4: x += 20
-
-                    # Draw the key
-                    Color(*self.colorize_string(self.layout[row][col]))
-                    RoundedRectangle(
-                        pos=(x, y),
-                        size=(square_size, square_size),
-                        radius=[(13, 13) * 4])
-
-                    # Draw the letter
-                    self.add_widget(Label(
-                        text=f"{self.layout[row][col].upper()}",
-                        font_size=25,
-                        color=(0, 0, 0, 1),  # Black color
-                        size_hint=(None, None),
-                        size=(square_size, square_size),
-                        pos=(x, y)))
                     
         # Create and manually position title text
         self.stats_label = Label(
@@ -179,15 +229,15 @@ class SquareWidget(Widget):
         self.add_widget(self.title)
 
 class SquareApp(App):
-    def __init__(self, layout, **kwargs):
+    def __init__(self, layouts, **kwargs):
         super().__init__(**kwargs)
-        self.layout = layout
+        self.layouts = layouts
 
     def build(self):
-        return SquareWidget(layout=self.layout)
+        return SquareWidget(layouts=self.layouts)
     
 if __name__ == '__main__':
-    SquareApp(layout=['qbdmxzyou;', 'rnthfgsaei', 'wpkljvc,.?']).run()
+    SquareApp(layouts).run()
 
 
     

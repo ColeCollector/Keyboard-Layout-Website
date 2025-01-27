@@ -1,5 +1,7 @@
 from itertools import combinations
 
+# This file is used to store a bunch of genetic algorithms for keyboard layout generation
+
 def dna(layouts):
     allnew = []
     combos = list(combinations(layouts, 2))

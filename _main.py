@@ -257,13 +257,9 @@ def generate():
 
     return layouts
 
-
 start = time.time()
 
 if __name__ == "__main__":
-    #print(evaluate([["qbdmxzyou;", "rnthfgsaei", "wpkljvc,.?"]]))
-    #exit()
-
     for iteration in range(60):
         round1 = evaluate(generate())
         print("\n")
