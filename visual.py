@@ -15,7 +15,7 @@ layouts = [['qpdmxzyou;', 'rnthfgsaei', 'wbkljvc,.?'],
            ['gvdfjqruo;', 'csthyxneai', 'wbmpkzl,.?'],
            ['bldwz;fouj', 'nrtsgyhaei', 'qxmcvkp,.?']]
 
-class SquareWidget(Widget):
+class KeyboardWidget(Widget):
     def __init__(self, layouts,  **kwargs):  # Accept layout as a parameter
         super().__init__(**kwargs)
         with self.canvas:
@@ -228,16 +228,16 @@ class SquareWidget(Widget):
             markup=True)
         self.add_widget(self.title)
 
-class SquareApp(App):
+class KeyboardApp(App):
     def __init__(self, layouts, **kwargs):
         super().__init__(**kwargs)
         self.layouts = layouts
 
     def build(self):
-        return SquareWidget(layouts=self.layouts)
+        return KeyboardWidget(layouts=self.layouts)
     
 if __name__ == '__main__':
-    SquareApp(layouts).run()
+    KeyboardApp(layouts).run()
 
 
     
