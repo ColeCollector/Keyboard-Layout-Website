@@ -33,7 +33,7 @@ for corpus in ["discord", "english-1k", "english-200", "keymash", "mt", "my_disc
 exit()
 '''
 
-def evaluate(layouts, corpus="english-200"):
+def evaluate(layouts, corpus="keymash"):
     with open(f"better_corpus/{corpus}.json", "r") as file:
         result = json.load(file)
 
@@ -48,38 +48,42 @@ def evaluate(layouts, corpus="english-200"):
 
     #USE THIS TO CUSTOMIZE THE PROGRAM:
     weights = {
-        "SFB":        15.0, 
-        "BadSfb":     30.0, 
-        "SFS":        3.75, 
-        "BadSfs":     7.5, 
-        "Scissors":   0.0, 
-        "BadScis":    30.0, 
-        "Redirects":  1.2, 
-        "BadRed"   :  3.0, 
-        "Inrolls":    -10.0, 
-        "Trinroll":   -10.0 * 1.5, 
-        "Outrolls":   -5.0, 
-        "Trioutroll": -5.0 * 1.5, 
-        "Alt":        -0.4, 
-        "LSB":        1.0
+        "SFB":               15.0, 
+        "BadSfb":            30.0, 
+        "SFS":               3.75, 
+        "BadSfs":            7.5, 
+        "Scissors":          0.0, 
+        "BadScis":           30.0, 
+        "Redirects":         1.2, 
+        "BadRed"   :         3.0, 
+        "Inrolls":           0.0, 
+        "Adj-Inrolls":      -10.0, 
+        "Tri-Adj-inroll":   -10.0 * 1.5, 
+        "Outrolls":          0.0, 
+        "Adj-Outrolls":     -5.0, 
+        "Tri-Adj-outroll":  -5.0 * 1.5, 
+        "Alt":              -0.4, 
+        "LSB":               1.0
     }
 
     for layout in layouts:
         stats = {
-            "SFB":        0.0, 
-            "BadSfb":     0.0, 
-            "SFS":        0.0, 
-            "BadSfs":     0.0, 
-            "Scissors":   0.0, 
-            "BadScis":    0.0, 
-            "Redirects":  0.0, 
-            "BadRed":     0.0, 
-            "Inrolls":    0.0, 
-            "Trinroll":   0.0, 
-            "Outrolls":   0.0, 
-            "Trioutroll": 0.0, 
-            "Alt":        0.0, 
-            "LSB":        0.0
+            "SFB":              0.0, 
+            "BadSfb":           0.0, 
+            "SFS":              0.0, 
+            "BadSfs":           0.0, 
+            "Scissors":         0.0, 
+            "BadScis":          0.0, 
+            "Redirects":        0.0, 
+            "BadRed":           0.0, 
+            "Inrolls":          0.0, 
+            "Adj-Inrolls":      0.0, 
+            "Tri-Adj-inroll":   0.0, 
+            "Outrolls":         0.0, 
+            "Adj-Outrolls":     0.0, 
+            "Tri-Adj-outroll":  0.0, 
+            "Alt":              0.0, 
+            "LSB":              0.0
         }
 
         movement = 0
@@ -120,57 +124,74 @@ def evaluate(layouts, corpus="english-200"):
                             if col0 is not None and (col1 > 4) != (col0 > 4):
                                 stats["Alt"] += amount
                         else:
-                            # LSB
-                            if (col1, col2) in [(4, 2), (2, 4), (5, 7), (7, 5)]: stats["LSB"] += amount  
-
-                            # Redirects
-                            if (col0 is not None and (col0 > 4) == (col1 > 4) and col2 != col0) and ((col2 > col1 and col1 < col0) or (col2 < col1 and col1 > col0)):
-                                if col2 not in [3, 4, 5, 6] and col1 not in [3, 4, 5, 6] and col0 not in [3, 4, 5, 6]:
-                                    stats["BadRed"] += amount
-                                else:
-                                    stats["Redirects"] += amount
-                                        
-                            #Scissors
-                            if (col1 in [col2 + 1, col2 - 1]) and (row1, row2) in [(0, 2), (2, 0)]:
-                                if (col1, col2) in [(2, 3), (3, 2), (6, 7), (7, 6)] : stats["Scissors"] += amount
-                                else: stats["BadScis"] += amount
-
                             # SFB
                             if trigram[1] != trigram[2] and (col1 == col2 or (col1, col2) in [(3, 4), (4, 3), (5, 6), (6, 5)]):
                                 if row1 == 1 or row2 == 1: stats['SFB'] += amount
                                 else: stats['BadSfb'] += amount
-                            
-                            # ROLLS:
-                            elif row1 == row2 and col2 not in [4, 5] and col1 not in [4, 5]:
-                                # LEFT TO RIGHT
-                                if col2 - 1 == col1:
-                                    if col2 <= 4:
-                                        if col0 not in [4, 5] and col1 - 1 == col0 and row0 == row1: 
-                                            stats["Trinroll"] += amount
-                                            
-                                        elif col0 is not None and (col0 > 4) != (col2 > 4): 
-                                            stats["Inrolls"] += amount
+                            else:
+                                # LSB
+                                if (col1, row1, col2, row2) in [(4, 0, 2, 2), (2, 0, 4, 2), (5, 0, 7, 2), (7, 0, 5, 2)]: 
+                                    stats["LSB"] += amount  
+
+                                # Redirects
+                                if (col0 is not None and (col0 > 4) == (col1 > 4) and col2 != col0) and ((col2 > col1 and col1 < col0) or (col2 < col1 and col1 > col0)):
+                                    if col2 not in [3, 4, 5, 6] and col1 not in [3, 4, 5, 6] and col0 not in [3, 4, 5, 6]:
+                                        stats["BadRed"] += amount
                                     else:
-                                        if col0 not in [4, 5] and col1 - 1 == col0 and row0 == row1: 
-                                            stats["Trioutroll"] += amount
+                                        stats["Redirects"] += amount
+                                        
+                                
+                                if col2 not in [4, 5] and col1 not in [4, 5]:
+                                    #Scissors
+                                    if (col1 in [col2 + 1, col2 - 1]) and (row1, row2) in [(0, 2), (2, 0)]:
+                                        if (col1, col2) in [(2, 3), (3, 2), (6, 7), (7, 6)] : stats["Scissors"] += amount
+                                        else: stats["BadScis"] += amount
 
-                                        elif col0 is not None and (col0 > 4) != (col2 > 4): 
-                                            stats["Outrolls"] += amount
+                                    # ROLLS:
+                                    if row1 == row2:
+                                        # LEFT TO RIGHT
+                                        if col2 - 1 == col1:
+                                            if col2 <= 4:
+                                                if col0 not in [4, 5] and col1 - 1 == col0 and row0 == row1: 
+                                                    stats["Tri-Adj-inroll"] += amount
+                                                    
+                                                elif col0 is not None: 
+                                                    stats["Adj-Inrolls"] += amount
+                                            else:
+                                                if col0 not in [4, 5] and col1 - 1 == col0 and row0 == row1: 
+                                                    stats["Tri-Adj-outroll"] += amount
 
-                                # RIGHT TO LEFT
-                                elif col2 + 1 == col1:
-                                    if col2 <= 4:
-                                        if col0 not in [4, 5] and col1 + 1 == col0 and row0 == row1: 
-                                            stats["Trioutroll"] += amount
+                                                elif col0 is not None: 
+                                                    stats["Adj-Outrolls"] += amount
 
-                                        elif col0 is not None and (col0 > 4) != (col2 > 4): 
-                                            stats["Outrolls"] += amount
+                                        # RIGHT TO LEFT
+                                        elif col2 + 1 == col1:
+                                            if col2 <= 4:
+                                                if col0 not in [4, 5] and col1 + 1 == col0 and row0 == row1: 
+                                                    stats["Tri-Adj-outroll"] += amount
+
+                                                elif col0 is not None: 
+                                                    stats["Adj-Outrolls"] += amount
+                                            else:
+                                                if col0 not in [4, 5] and col1 + 1 == col0 and row0 == row1: 
+                                                    stats["Tri-Adj-inroll"] += amount
+
+                                                elif col0 is not None: 
+                                                    stats["Adj-Inrolls"] += amount
                                     else:
-                                        if col0 not in [4, 5] and col1 + 1 == col0 and row0 == row1: 
-                                            stats["Trinroll"] += amount
+                                        # LEFT TO RIGHT
+                                        if col2 > col1:
+                                            if col2 <= 4:
+                                                stats["Inrolls"] += amount
+                                            else:
+                                                stats["Outrolls"] += amount
 
-                                        elif col0 is not None and (col0 > 4) != (col2 > 4): 
-                                            stats["Inrolls"] += amount
+                                        # RIGHT TO LEFT
+                                        elif col2 < col1:
+                                            if col2 <= 4:
+                                                stats["Outrolls"] += amount
+                                            else:
+                                                stats["Inrolls"] += amount
         
         
         for j in stats:
@@ -182,7 +203,7 @@ def evaluate(layouts, corpus="english-200"):
         layoutscore.append([layout, round(movement, 1)])
 
     if len(layouts) == 1: 
-        return stats, weights, corpus_count, movement
+        return stats
 
     sorted_data = sorted(layoutscore, key=lambda x: x[1])[:30]
     return sorted_data
@@ -260,6 +281,9 @@ def generate():
 start = time.time()
 
 if __name__ == "__main__":
+    #print(evaluate([['qwertyuiop', "asdfghjkl;", "zxcvbnm,.?"]]))
+    #exit()
+    
     for iteration in range(60):
         round1 = evaluate(generate())
         print("\n")

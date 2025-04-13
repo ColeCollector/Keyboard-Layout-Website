@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Keyboard Layout Graph</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background-color: black;
+            color: #9c9c9c;
+        }
+
+        canvas {
+            max-width: 100%;
+            background-color: black;
+
+        }
+
+        .ex {
+            margin-left: 40px; 
+            text-decoration: underline ;
+        }
+
+        .metric {
+            color: #cfcfcf;
+        }
+
+        .box {
+            margin: 20px;
+            padding: 30px 30px;
+            max-width: 700px;
+            border-radius: 15px;
+            background-color: #131313;
+            border: 1px solid #444;
+        }
+
+        .choices, .metrics-container {
+            width: 720px;
+        }
+
+        .choices__list--multiple {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .choices__inner, .choices__item--selectable {
+            border: 1px solid #444 !important;
+        }
+
+        button, select {
+            margin-top: 10px;
+            background-color: #222;
+            color: #9c9c9c;
+            border: 1px solid #444;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #191919;
+        }
+        
+        .choices__inner, .choices__input--cloned, 
+        .choices__list--dropdown, .choices__inner, 
+        .choices__item--selectable  {
+            width: 700px !important;
+            background-color: #131313 !important;
+            color: #9c9c9c !important;
+        }
+
+        .choices__item--selectable {
+            width: 122px !important;
+        }
+
+        .choices__item--choice {
+            width: 700px !important;
+        }
+
+        .choices__button {
+            border-left: none !important;
+            box-shadow: none !important;
+        }
+
+        .choices__item--selectable:hover{
+            background-color: #444 !important;
+        }
+
+    
+    </style>  
+</head>
+
+<body>
+    <div id ="main">
+        <button onclick="goToInfo()">Go to Definitions</button>
+        <h2>Keyboard Layout Graph</h2>
+
+        <div style="display: flex; align-items: center; gap: 30px; margin-bottom: 20px; flex-wrap: wrap; height: 180px;">
+            <label for="statCategory">Corpus:</label>
+            <select id="statCategory">
+                <option value="english-1k">English 1k</option>
+                <option value="english-200">English 200</option>
+                <option value="keymash">Keymash</option>
+                <option value="monkey-Type">MonkeyType</option>
+                <option value="discord">Discord</option>
+            </select>
+
+            <button id="btn">Reset Zoom</button>
+          
+            <div>
+              <h3 style="margin: 0; padding-bottom: 10px;">X Axis Metrics | Logarithmic? 
+                <input type="checkbox" id="xLog">
+              </h3>
+              <select id="xMetricsSelect" multiple></select>
+            </div>
+          
+            <div>
+              <h3 style="margin: 0; padding-bottom: 10px;">Y Axis Metrics | Logarithmic? 
+                <input type="checkbox" id="yLog">
+              </h3>
+              <select id="yMetricsSelect" multiple></select>
+            </div>
+          
+          </div>
+          
+        <canvas id="layoutChart" width="800" height="320"></canvas>
+    </div>
+
+    <div id="info" style="display: none;">
+        <button onclick="goBack()">Go Back</button>
+        <h1 style ="color: #cfcfcf;"> DEFINITIONS:</h1>
+        <h2 class = "metric">NOTE: all examples are for QWERTY</h2>
+        <div class = "box">
+        <h2 class = "metric">SFB:</h2>
+        <p>Pressing two keys in succession with the same finger with distance of 1</p>
+        <p class="ex">For example, de or fr</p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">Bad SFB:</h2>
+        <p>Pressing two keys in succession with the same finger with a distance > 1</p>
+        <p class="ex">For example, ce or ft<p>
+        </div>
+        
+        <div class = "box">
+        <h2 class = "metric">Scissor:</h2>
+        <p>Pressing two keys with different fingers, one on the top row and one on the bottom row using pinky, ring or middle finger</p>
+        <p class="ex">For example, zw, xe or cw<p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">Bad Scissor:</h2>
+        <p>Pressing two keys with different fingers, one on the top row and one on the bottom row using both middle and index finger</p>
+        <p class="ex">For example, ve or cr</p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">LSB:</h2>
+        <p>A sequence of middle finger and middle column keys.</p>
+        <p class="ex">For example, be or gd</p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">Redirect:</h2>
+        <p>A one-handed sequence of at least three letters that 'changes directions'</p>
+        <p class="ex">For example, sfd would be a redirect, but sdf would not<p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">Bad Redirect:</h2>
+        <p>A one-handed sequence of at least three letters that 'changes directions' and doesn't involve your index finger</p>
+        <p class="ex">For example, asq or zxd</p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">Inrolls:</h2>
+        <p>A one-handed sequence of 2 keys in an inward motion, towards your index finger</p>
+        <p class="ex">For example, as or sd</p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">Adj-Inrolls:</h2>
+        <p>A one-handed sequence of 2 adjacent keys in an inward motion, towards your index finger in the same row</p>
+        <p class="ex">For example, asd or poi</p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">Tri-Adj-Inrolls:</h2>
+        <p>A one-handed sequence of 3 adjacent keys in an inward motion, towards your index finger in the same row</p>
+        <p class="ex">For example, asd or poi</p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">Outrolls:</h2>
+        <p>A one-handed sequence of 2 keys in an outward motion, towards your pinky finger in the same row</p>
+        <p class="ex">For example, sa or ds</p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">Adj-Outrolls:</h2>
+        <p>A one-handed sequence of 2 adjacent keys in an outward motion, towards your pinky finger in the same row</p>
+        <p class="ex">For example, sa or ds</p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">Tri-outrolls:</h2>
+        <p>A one-handed sequence of 3 adjacent keys in an outward motion, towards your pinky finger in the same row</p>
+        <p class="ex">For example, dsa or iop</p>
+        </div>
+
+        <div class = "box">
+        <h2 class = "metric">Alt:</h2>
+        <p>Pressing a key with the opposite hand than you typed the last</p>
+        <p class="ex">For example, so</p>
+        </div>
+    </div>
+
+    <script>
+        function goToInfo() {
+            document.getElementById('main').style.display = 'none';
+            document.getElementById('info').style.display = 'block';
+        }
+
+        function goBack() {
+            document.getElementById('main').style.display = 'block';
+            document.getElementById('info').style.display = 'none';
+        }
+        async function loadAndPlotData() {
+          function stringToRGB(s) {
+            let hash = 0;
+            for (let i = 0; i < s.length; i++) {
+              hash = s.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const r = (hash >> 0) & 0xFF;
+            const g = (hash >> 8) & 0xFF;
+            const b = (hash >> 16) & 0xFF;
+            return `rgb(${r % 256}, ${g % 256}, ${b % 256})`;
+          }
+    
+          function darkenColor(rgbStr, factor = 0.6) {
+            const [r, g, b] = rgbStr.match(/\d+/g).map(Number);
+            return `rgb(${Math.floor(r * factor)}, ${Math.floor(g * factor)}, ${Math.floor(b * factor)})`;
+          }
+    
+          try {
+            const response = await fetch('data.json');
+            const jsonData = await response.json();
+    
+            const groupAmount = {};
+            jsonData.forEach(item => {
+              const group = item.homerow;
+              groupAmount[group] = (groupAmount[group] || 0) + 1;
+            });
+            const groupColors = {};
+            Object.entries(groupAmount).forEach(([group, count]) => {
+              groupColors[group] = count === 1 ? "#4C4B49" : stringToRGB(group);
+            });
+    
+            // Get elements
+            const statCategorySelect = document.getElementById('statCategory');
+            const xMetricsSelect = document.getElementById('xMetricsSelect');
+            const yMetricsSelect = document.getElementById('yMetricsSelect');
+            const xLog = document.getElementById('xLog');
+            const yLog = document.getElementById('yLog');
+            const btn = document.getElementById('btn');
+    
+            let xMetricsChoices, yMetricsChoices;
+    
+            // Populate multi-select dropdowns using Choices.js
+            function populateMetricSelects() {
+                // Store currently selected values
+                const previousXSelections = xMetricsChoices ? xMetricsChoices.getValue(true) : [];
+                const previousYSelections = yMetricsChoices ? yMetricsChoices.getValue(true) : [];
+
+                xMetricsSelect.innerHTML = '';
+                yMetricsSelect.innerHTML = '';
+                
+                const statCategory = statCategorySelect.value;
+                const metricKeys = Object.keys(jsonData[0][statCategory]);
+                
+                metricKeys.forEach(metric => {
+                    const optionX = new Option(metric, metric);
+                    const optionY = new Option(metric, metric);
+                    xMetricsSelect.appendChild(optionX);
+                    yMetricsSelect.appendChild(optionY);
+                });
+                
+                if (xMetricsChoices) xMetricsChoices.destroy();
+                if (yMetricsChoices) yMetricsChoices.destroy();
+                
+                xMetricsChoices = new Choices(xMetricsSelect, {
+                    removeItemButton: true,
+                    searchEnabled: true,
+                    placeholderValue: 'Select X Axis Metrics',
+                });
+                yMetricsChoices = new Choices(yMetricsSelect, {
+                    removeItemButton: true,
+                    searchEnabled: true,
+                    placeholderValue: 'Select Y Axis Metrics',
+                });
+
+                // Restore selections if they still exist in the new metric list
+                previousXSelections.forEach(value => {
+                    if (metricKeys.includes(value)) {
+                    xMetricsChoices.setChoiceByValue(value);
+                    }
+                });
+
+                previousYSelections.forEach(value => {
+                    if (metricKeys.includes(value)) {
+                    yMetricsChoices.setChoiceByValue(value);
+                    }
+                });
+            }
+
+    
+            populateMetricSelects();
+    
+            statCategorySelect.addEventListener('change', () => {
+              populateMetricSelects();
+              updateChart();
+            });
+    
+            // Get the other select elements that will trigger updates
+            xMetricsSelect.addEventListener('change', updateChart);
+            yMetricsSelect.addEventListener('change', updateChart);
+            xLog.addEventListener('change', updateChart);
+            yLog.addEventListener('change', updateChart);
+    
+            let chart;
+            function updateChart() {
+              const statCategory = statCategorySelect.value;
+              const xMetrics = Array.from(xMetricsSelect.selectedOptions).map(opt => opt.value);
+              const yMetrics = Array.from(yMetricsSelect.selectedOptions).map(opt => opt.value);
+              
+              const chartData = jsonData.map(entry => {
+                const baseColor = groupColors[entry.homerow];
+                return {
+                  x: xMetrics.reduce((sum, metric) => sum + (entry[statCategory][metric] || 0), 0),
+                  y: yMetrics.reduce((sum, metric) => sum + (entry[statCategory][metric] || 0), 0),
+                  label: entry.name,
+                  layout: entry.layout,
+                  backgroundColor: baseColor,
+                  borderColor: darkenColor(baseColor),
+                };
+              });
+    
+              const allX = chartData.map(p => p.x);
+              const allY = chartData.map(p => p.y);
+              const xMinRaw = Math.min(...allX);
+              const xMaxRaw = Math.max(...allX);
+              const yMinRaw = Math.min(...allY);
+              const yMaxRaw = Math.max(...allY);
+              const xPadding = (xMaxRaw - xMinRaw) * 0.02 || 1;
+              const yPadding = (yMaxRaw - yMinRaw) * 0.04 || 1;
+              const xMin = xMinRaw - xPadding;
+              const xMax = xMaxRaw + xPadding;
+              const yMin = yMinRaw - yPadding;
+              const yMax = yMaxRaw + yPadding;
+    
+              if (chart) chart.destroy();
+              const ctx = document.getElementById('layoutChart').getContext('2d');
+              chart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                  datasets: [{
+                    label: 'Layouts',
+                    data: chartData,
+                    pointBackgroundColor: chartData.map(p => p.backgroundColor),
+                    pointBorderColor: chartData.map(p => p.borderColor),
+                    pointRadius: 6,
+                    pointBorderWidth: 1
+                  }]
+                },
+                options: {
+                  animation: false,
+                  plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        bodyFont: {
+                            family: 'monospace',
+                            size: 14
+                        },
+                        titleFont: {
+                            family: 'monospace',
+                            size: 16
+                        },
+                        callbacks: {
+                            label: (context) => {
+                            const point = chartData[context.dataIndex];
+                            return [point.label, ...point.layout];
+                            }
+                        }
+                    },
+                    zoom: {
+                        zoom: {
+                            wheel: { enabled: true },
+                            pinch: { enabled: true },
+                            mode: 'xy'
+                        },
+                        pan: {
+                            enabled: true,
+                            mode: 'xy',
+                            modifierKey: null
+                        },
+                        limits: {
+                            x: {
+                            min: xLog.checked ? undefined : xMin,
+                            max: xLog.checked ? undefined : xMax,
+                            minRange: 10
+                            },
+                            y: {
+                            min: yLog.checked ? undefined : yMin,
+                            max: yLog.checked ? undefined : yMax,
+                            minRange: 10
+                            }
+                        }
+                    }
+                  },
+                  scales: {
+                    x: {
+                      type: xLog.checked ? 'logarithmic' : 'linear',
+                      title: { display: true, text: `${xMetrics.join(' + ')}`, color: '#9c9c9c' },
+                      min: xLog.checked ? undefined : xMin,
+                      max: xLog.checked ? undefined : xMax,
+                      ticks: {
+                        color: '#9c9c9c',
+                        callback: val => typeof val === 'number' ? Math.round(val) : val
+                      },
+                      grid: { color: '#191919' }
+                    },
+                    y: {
+                      type: yLog.checked ? 'logarithmic' : 'linear',
+                      title: { display: true, text: `${yMetrics.join(' + ')}` , color: '#9c9c9c' },
+                      min: yLog.checked ? undefined : yMin,
+                      max: yLog.checked ? undefined : yMax,
+                      ticks: {
+                        color: '#9c9c9c',
+                        callback: val => typeof val === 'number' ? Math.round(val) : val
+                      },
+                      grid: { color: '#191919' }
+                    }
+                  }
+                }
+              });
+            }
+
+            btn.addEventListener('click', () => {
+              if (chart) chart.resetZoom();
+            });
+    
+            updateChart();
+    
+          } catch (error) {
+            console.error("Failed to load JSON:", error);
+          }
+        }
+        loadAndPlotData();
+      </script>
+</body>
+</html>
