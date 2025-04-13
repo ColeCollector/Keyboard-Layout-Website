@@ -357,6 +357,8 @@
                   y: yMetrics.reduce((sum, metric) => sum + (entry[statCategory][metric] || 0), 0),
                   label: entry.name,
                   layout: entry.layout,
+                  author: entry.author,
+                  likes: entry.likes,
                   backgroundColor: baseColor,
                   borderColor: darkenColor(baseColor),
                 };
@@ -385,54 +387,57 @@
                     data: chartData,
                     pointBackgroundColor: chartData.map(p => p.backgroundColor),
                     pointBorderColor: chartData.map(p => p.borderColor),
-                    pointRadius: 6,
+                    pointRadius: (ctx) => 4 + Math.sqrt(ctx.raw.likes),
                     pointBorderWidth: 1
                   }]
                 },
                 options: {
-                  animation: false,
-                  plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        bodyFont: {
-                            family: 'monospace',
-                            size: 14
-                        },
-                        titleFont: {
-                            family: 'monospace',
-                            size: 16
-                        },
-                        callbacks: {
-                            label: (context) => {
-                            const point = chartData[context.dataIndex];
-                            return [point.label, ...point.layout];
-                            }
-                        }
+                    hover: {
+                        mode: null
                     },
-                    zoom: {
-                        zoom: {
-                            wheel: { enabled: true },
-                            pinch: { enabled: true },
-                            mode: 'xy'
-                        },
-                        pan: {
-                            enabled: true,
-                            mode: 'xy',
-                            modifierKey: null
-                        },
-                        limits: {
-                            x: {
-                            min: xLog.checked ? undefined : xMin,
-                            max: xLog.checked ? undefined : xMax,
-                            minRange: 10
+                    animation: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            bodyFont: {
+                                family: 'monospace',
+                                size: 14
                             },
-                            y: {
-                            min: yLog.checked ? undefined : yMin,
-                            max: yLog.checked ? undefined : yMax,
-                            minRange: 10
+                            titleFont: {
+                                family: 'monospace',
+                                size: 16
+                            },
+                            callbacks: {
+                                label: (context) => {
+                                const point = chartData[context.dataIndex];
+                                return [point.label, `Author: ${point.author}`, ...point.layout];
+                                }
+                            }
+                        },
+                        zoom: {
+                            zoom: {
+                                wheel: { enabled: true },
+                                pinch: { enabled: true },
+                                mode: 'xy'
+                            },
+                            pan: {
+                                enabled: true,
+                                mode: 'xy',
+                                modifierKey: null
+                            },
+                            limits: {
+                                x: {
+                                min: xLog.checked ? undefined : xMin,
+                                max: xLog.checked ? undefined : xMax,
+                                minRange: 10
+                                },
+                                y: {
+                                min: yLog.checked ? undefined : yMin,
+                                max: yLog.checked ? undefined : yMax,
+                                minRange: 10
+                                }
                             }
                         }
-                    }
                   },
                   scales: {
                     x: {
