@@ -12,6 +12,8 @@
             padding: 20px;
             background-color: black;
             color: #9c9c9c;
+            height: 100%;
+            width: 100%;
         }
 
         canvas {
@@ -39,7 +41,7 @@
         }
 
         .choices, .metrics-container {
-            width: 720px;
+            width: 100% !important;
         }
 
         .choices__list--multiple {
@@ -65,11 +67,16 @@
         button:hover {
             background-color: #191919;
         }
-        
+        .choices__inner {         
+            width: 21vw !important;
+            box-sizing: border-box;
+        }
+
         .choices__inner, .choices__input--cloned, 
         .choices__list--dropdown, .choices__inner, 
         .choices__item--selectable  {
-            width: 700px !important;
+            box-sizing: border-box;
+            width: 21vw !important;
             background-color: #131313 !important;
             color: #9c9c9c !important;
         }
@@ -79,7 +86,8 @@
         }
 
         .choices__item--choice {
-            width: 700px !important;
+            width: 300px !important;
+            border: none !important;
         }
 
         .choices__button {
@@ -100,33 +108,39 @@
         <button onclick="goToInfo()">Go to Definitions</button>
         <h2>Keyboard Layout Graph</h2>
 
-        <div style="display: flex; align-items: center; gap: 30px; margin-bottom: 20px; flex-wrap: wrap; height: 180px;">
-            <label for="statCategory">Corpus:</label>
-            <select id="statCategory">
+        <div style="display: flex; gap: 30px; margin-bottom: 20px; flex-wrap: wrap; align-items: flex-start;">
+  
+            <!-- Left column: Corpus + Reset Zoom stacked -->
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <label for="statCategory">Corpus:</label>
+              <select id="statCategory">
                 <option value="english-1k">English 1k</option>
                 <option value="english-200">English 200</option>
                 <option value="keymash">Keymash</option>
-                <option value="monkey-Type">MonkeyType</option>
+                <option value="monkey-type">MonkeyType</option>
                 <option value="discord">Discord</option>
-            </select>
-
-            <button id="btn">Reset Zoom</button>
+              </select>
           
-            <div>
-              <h3 style="margin: 0; padding-bottom: 10px;">X Axis Metrics | Logarithmic? 
-                <input type="checkbox" id="xLog">
-              </h3>
-              <select id="xMetricsSelect" multiple></select>
+              <button id="btn">Reset Zoom</button>
             </div>
           
-            <div>
-              <h3 style="margin: 0; padding-bottom: 10px;">Y Axis Metrics | Logarithmic? 
-                <input type="checkbox" id="yLog">
-              </h3>
-              <select id="yMetricsSelect" multiple></select>
-            </div>
+            <!-- Right column: X and Y axis metrics -->
+            <div style="display: flex; gap: 30px;">
+              <div>
+                <h3 style="margin: 0; padding-bottom: 10px;">X Axis Metrics | Logarithmic? 
+                  <input type="checkbox" id="xLog">
+                </h3>
+                <select id="xMetricsSelect" multiple></select>
+              </div>
           
-          </div>
+              <div>
+                <h3 style="margin: 0; padding-bottom: 10px;">Y Axis Metrics | Logarithmic? 
+                  <input type="checkbox" id="yLog">
+                </h3>
+                <select id="yMetricsSelect" multiple></select>
+              </div>
+            </div>
+          </div>          
           
         <canvas id="layoutChart" width="800" height="320"></canvas>
     </div>
@@ -180,13 +194,13 @@
         <div class = "box">
         <h2 class = "metric">Inrolls:</h2>
         <p>A one-handed sequence of 2 keys in an inward motion, towards your index finger</p>
-        <p class="ex">For example, as or sd</p>
+        <p class="ex">For example, aw or sd</p>
         </div>
 
         <div class = "box">
         <h2 class = "metric">Adj-Inrolls:</h2>
         <p>A one-handed sequence of 2 adjacent keys in an inward motion, towards your index finger in the same row</p>
-        <p class="ex">For example, asd or poi</p>
+        <p class="ex">For example, as or sd</p>
         </div>
 
         <div class = "box">
@@ -198,7 +212,7 @@
         <div class = "box">
         <h2 class = "metric">Outrolls:</h2>
         <p>A one-handed sequence of 2 keys in an outward motion, towards your pinky finger in the same row</p>
-        <p class="ex">For example, sa or ds</p>
+        <p class="ex">For example, wa or ds</p>
         </div>
 
         <div class = "box">
@@ -208,7 +222,7 @@
         </div>
 
         <div class = "box">
-        <h2 class = "metric">Tri-outrolls:</h2>
+        <h2 class = "metric">Tri-Adj-Outrolls:</h2>
         <p>A one-handed sequence of 3 adjacent keys in an outward motion, towards your pinky finger in the same row</p>
         <p class="ex">For example, dsa or iop</p>
         </div>
