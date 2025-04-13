@@ -12,8 +12,6 @@
             padding: 20px;
             background-color: black;
             color: #9c9c9c;
-            height: 100%;
-            width: 100%;
         }
 
         canvas {
@@ -55,11 +53,11 @@
         }
 
         button, select {
-            margin-top: 10px;
+            margin-top: 0px;
             background-color: #222;
             color: #9c9c9c;
             border: 1px solid #444;
-            padding: 8px 12px;
+            padding: 12px 12px;
             border-radius: 4px;
             cursor: pointer;
         }
@@ -112,7 +110,7 @@
   
             <!-- Left column: Corpus + Reset Zoom stacked -->
             <div style="display: flex; flex-direction: column; gap: 10px;">
-              <label for="statCategory">Corpus:</label>
+              <h3 for="statCategory" style="margin: 0;">Corpus:</h3>
               <select id="statCategory">
                 <option value="english-1k">English 1k</option>
                 <option value="english-200">English 200</option>
