@@ -68,7 +68,7 @@ for file in file_names:
 
 json_string = json.dumps(layouts, indent=4)
 
-with open("data3.json", "w") as f:
+with open("data1.json", "w") as f:
     f.write(json_string)
 
 print("done")

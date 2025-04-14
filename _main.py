@@ -128,6 +128,7 @@ def evaluate(layouts, corpus="keymash"):
                             if trigram[1] != trigram[2] and (col1 == col2 or (col1, col2) in [(3, 4), (4, 3), (5, 6), (6, 5)]):
                                 if row1 == 1 or row2 == 1: stats['SFB'] += amount
                                 else: stats['BadSfb'] += amount
+
                             else:
                                 # LSB
                                 if (col1, row1, col2, row2) in [(4, 0, 2, 2), (2, 0, 4, 2), (5, 0, 7, 2), (7, 0, 5, 2)]: 
@@ -139,8 +140,22 @@ def evaluate(layouts, corpus="keymash"):
                                         stats["BadRed"] += amount
                                     else:
                                         stats["Redirects"] += amount
-                                        
-                                
+
+                                # ROLLS:
+                                # LEFT TO RIGHT
+                                if col2 > col1:
+                                    if col2 <= 4:
+                                        stats["Inrolls"] += amount
+                                    else:
+                                        stats["Outrolls"] += amount
+
+                                # RIGHT TO LEFT
+                                elif col2 < col1:
+                                    if col2 <= 4:
+                                        stats["Outrolls"] += amount
+                                    else:
+                                        stats["Inrolls"] += amount
+
                                 if col2 not in [4, 5] and col1 not in [4, 5]:
                                     #Scissors
                                     if (col1 in [col2 + 1, col2 - 1]) and (row1, row2) in [(0, 2), (2, 0)]:
@@ -155,13 +170,13 @@ def evaluate(layouts, corpus="keymash"):
                                                 if col0 not in [4, 5] and col1 - 1 == col0 and row0 == row1: 
                                                     stats["Tri-Adj-inroll"] += amount
                                                     
-                                                elif col0 is not None: 
+                                                else: 
                                                     stats["Adj-Inrolls"] += amount
                                             else:
                                                 if col0 not in [4, 5] and col1 - 1 == col0 and row0 == row1: 
                                                     stats["Tri-Adj-outroll"] += amount
 
-                                                elif col0 is not None: 
+                                                else: 
                                                     stats["Adj-Outrolls"] += amount
 
                                         # RIGHT TO LEFT
@@ -170,29 +185,14 @@ def evaluate(layouts, corpus="keymash"):
                                                 if col0 not in [4, 5] and col1 + 1 == col0 and row0 == row1: 
                                                     stats["Tri-Adj-outroll"] += amount
 
-                                                elif col0 is not None: 
+                                                else: 
                                                     stats["Adj-Outrolls"] += amount
                                             else:
                                                 if col0 not in [4, 5] and col1 + 1 == col0 and row0 == row1: 
                                                     stats["Tri-Adj-inroll"] += amount
 
-                                                elif col0 is not None: 
+                                                else: 
                                                     stats["Adj-Inrolls"] += amount
-                                    else:
-                                        # LEFT TO RIGHT
-                                        if col2 > col1:
-                                            if col2 <= 4:
-                                                stats["Inrolls"] += amount
-                                            else:
-                                                stats["Outrolls"] += amount
-
-                                        # RIGHT TO LEFT
-                                        elif col2 < col1:
-                                            if col2 <= 4:
-                                                stats["Outrolls"] += amount
-                                            else:
-                                                stats["Inrolls"] += amount
-        
         
         for j in stats:
             movement += stats[j]*weights[j]
@@ -281,8 +281,8 @@ def generate():
 start = time.time()
 
 if __name__ == "__main__":
-    #print(evaluate([['qwertyuiop', "asdfghjkl;", "zxcvbnm,.?"]]))
-    #exit()
+    print(evaluate([['uoslmg.fcq', "eintdz,pkx", "yahrw;/bjv"]]))
+    exit()
     
     for iteration in range(60):
         round1 = evaluate(generate())
