@@ -388,7 +388,8 @@
                     pointBackgroundColor: chartData.map(p => p.backgroundColor),
                     pointBorderColor: chartData.map(p => p.borderColor),
                     pointRadius: (ctx) => 4 + Math.sqrt(ctx.raw.likes),
-                    pointBorderWidth: 1
+                    pointBorderWidth: 1,
+                    clip: false
                   }]
                 },
                 options: {
@@ -427,13 +428,13 @@
                             },
                             limits: {
                                 x: {
-                                min: xLog.checked ? undefined : xMin,
-                                max: xLog.checked ? undefined : xMax,
+                                min: xMin,
+                                max: xMax,
                                 minRange: 10
                                 },
                                 y: {
-                                min: yLog.checked ? undefined : yMin,
-                                max: yLog.checked ? undefined : yMax,
+                                min: yMin,
+                                max: yMax,
                                 minRange: 10
                                 }
                             }
@@ -443,8 +444,8 @@
                     x: {
                       type: xLog.checked ? 'logarithmic' : 'linear',
                       title: { display: true, text: `${xMetrics.join(' + ')}`, color: '#9c9c9c' },
-                      min: xLog.checked ? undefined : xMin,
-                      max: xLog.checked ? undefined : xMax,
+                      min: xMin,
+                      max: xMax,
                       ticks: {
                         color: '#9c9c9c',
                         callback: val => typeof val === 'number' ? Math.round(val) : val
@@ -454,8 +455,8 @@
                     y: {
                       type: yLog.checked ? 'logarithmic' : 'linear',
                       title: { display: true, text: `${yMetrics.join(' + ')}` , color: '#9c9c9c' },
-                      min: yLog.checked ? undefined : yMin,
-                      max: yLog.checked ? undefined : yMax,
+                      min: yMin,
+                      max: yMax,
                       ticks: {
                         color: '#9c9c9c',
                         callback: val => typeof val === 'number' ? Math.round(val) : val
